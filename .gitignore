@@ -108,3 +108,4 @@ venv.bak/
 venv/
 .idea/
 .DS_Store
+profiles/
