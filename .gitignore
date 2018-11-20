@@ -109,3 +109,4 @@ venv/
 .DS_Store
 profiles/
 *.sqlite3
+resources/random-images
