@@ -26,7 +26,9 @@ def analyze_img(image_content):
   image = types.Image(content=image_content)
 
   # Performs label detection on the image file
-  response = client.label_detection(image=image)
-  label_annotations = response.label_annotations
+  label_detection_feature = {
+    'type': vision.enums.Feature.Type.LABEL_DETECTION, 'max_results': 25}
+  request_features = [label_detection_feature]
+  response = client.annotate_image({'image': image, 'features': request_features})
 
-  return label_annotations
+  return response.label_annotations
