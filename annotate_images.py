@@ -46,10 +46,14 @@ class AnnotateImages(object):
                     for label_annotation in label_annotations:
                         db_conn.execute(
                             'INSERT INTO image_label (`path_prefix`, `filename`, `label`, `score`) VALUES (?, ?, ?, ?)',
-                            (directory_string, filename, label_annotation.description, label_annotation.score))
+                            (directory_string + '/' if not directory_string.endswith('s') else directory_string,
+                             filename,
+                             label_annotation.description,
+                             label_annotation.score))
 
         db_conn.commit()
         db_conn.close()
+
 
 if __name__ == '__main__':
     annotate_images = AnnotateImages()
