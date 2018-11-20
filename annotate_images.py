@@ -45,8 +45,8 @@ class AnnotateImages(object):
                     print("Received label annotationns for %s." % image_filename)
                     for label_annotation in label_annotations:
                         db_conn.execute(
-                            'INSERT INTO image_label (`path`, `label`, `score`) VALUES (?, ?, ?)',
-                            (image_filename, label_annotation.description, label_annotation.score))
+                            'INSERT INTO image_label (`path_prefix`, `filename`, `label`, `score`) VALUES (?, ?, ?, ?)',
+                            (directory_string, filename, label_annotation.description, label_annotation.score))
 
         db_conn.commit()
         db_conn.close()
