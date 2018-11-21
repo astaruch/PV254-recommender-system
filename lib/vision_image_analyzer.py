@@ -46,6 +46,7 @@ def annotate_images(path_to_directory, callback_is_analyzed, callback_store_labe
 
             if callback_is_analyzed(filename):
                 print('Image is already analyzed.')
+                continue
 
             with io.open(image_filename, 'rb') as image_file:
                 content = image_file.read()
