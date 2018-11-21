@@ -34,7 +34,7 @@ def analyze_img(image_content):
     return response.label_annotations
 
 
-def annotate_images(path_to_directory, callback):
+def annotate_images(path_to_directory, callback_is_analyzed, callback_store_labels):
     directory = os.fsencode(path_to_directory)
 
     for file in os.listdir(directory):
@@ -44,10 +44,13 @@ def annotate_images(path_to_directory, callback):
             image_filename = os.path.join(path_to_directory, filename)
             print('Annotating image: %s.' % image_filename)
 
+            if callback_is_analyzed(filename):
+                print('Image is already analyzed.')
+
             with io.open(image_filename, 'rb') as image_file:
                 content = image_file.read()
 
                 label_annotations = analyze_img(content)
 
                 print("Received label annotationns for %s." % image_filename)
-                callback(filename, label_annotations)
+                callback_store_labels(filename, label_annotations)

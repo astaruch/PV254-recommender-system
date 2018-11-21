@@ -27,5 +27,5 @@
 ## Django frontend
 1. Perform all steps in Setup
 2. Run server:
-    * dev `python frontend/manage.py runserver` is listening on `127.0.0.1:8000`
+    * dev `python manage.py runserver` is listening on `127.0.0.1:8000`
     * prod `gunicorn --pythonpath frontend frontend.wsgi`
