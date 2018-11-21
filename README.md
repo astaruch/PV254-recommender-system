@@ -7,10 +7,11 @@
 - it is sufficient to place `pv254-recommender-systems-1329fedf3c97.json` inside `.secrets` folder
 
 ## Setup
-1. Install virtualenv via `pip install virtualenv`.
-2. Create new virtual environment `virtualenv venv`.
-3. Activate virtual environment `source venv/bin/activate`.
+1. Install virtualenv via `pip install virtualenv` (alternatively `pip3 install virtualenv`).
+2. Create new virtual environment `virtualenv venv` (alternatively `virtualenv -p python3 venv`).
+3. Activate virtual environment `source venv/bin/activate` (Windows: `venv\Scripts\activate`).
 4. Install all requirements via `pip install -r requirements.txt`
+5. Leaving virtual environment: `deactivate`.
 
 ## Example usage
 1. Download random images `python download_random_photos.py`.
