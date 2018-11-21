@@ -35,6 +35,8 @@ def profile(request, profile_name):
 
     analyzed_count = 0
     with connection.cursor() as cursor:
+        cursor.execute(database_sql_commands.CREATE_TABLE_IMAGE_LABEL)
+
         analyzed_count = cursor.execute(
             'SELECT COUNT(*) FROM (SELECT DISTINCT path_prefix, filename FROM image_label WHERE path_prefix = %s)',
             (directory_string,)).fetchone()[0]
@@ -77,3 +79,26 @@ def analyze_profile(request, profile_name):
             vision_image_analyzer.annotate_images(directory_string, callback_is_analyzed, callback_store_labels)
 
     return redirect('profile', profile_name=profile_name)
+
+
+def recommendations(request, profile_name):
+    directory_string = os.path.join('candidates/%s/' % profile_name)
+    directory = os.fsencode(directory_string)
+    try:
+        images_count = len(os.listdir(directory))
+    except FileNotFoundError:
+        images_count = 0
+
+    analyzed_count = 0
+    # with connection.cursor() as cursor:
+    #     cursor.execute(database_sql_commands.CREATE_TABLE_IMAGE_LABEL)
+    #
+    #     analyzed_count = cursor.execute(
+    #         'SELECT COUNT(*) FROM (SELECT DISTINCT path_prefix, filename FROM image_label WHERE path_prefix = %s)',
+    #         (directory_string,)).fetchone()[0]
+
+    return render(request, 'recommendations.html', context={
+        'profile_name': profile_name,
+        'images_count': images_count,
+        'analyzed_count': analyzed_count
+    })

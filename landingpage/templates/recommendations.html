@@ -20,16 +20,16 @@
 <body>
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-6">
-            <h1 class="mt-2">Instagram profile {{ profile_name }}</h1>
+        <div class="col-10">
+            <h1 class="mt-2">Recommendations for an Instagram profile {{ profile_name }}</h1>
         </div>
     </div>
     <br />
     <br />
     <div class="row">
         <div class="col-6">
-            <p>Currently downloaded images count: {{ images_count }}</p>
-            <form method="post" action="{% url 'download_profile' profile_name %}" novalidate>
+            <p>Currently uploaded images count: {{ images_count }}</p>
+            <form method="post" action="#" novalidate>
                 {% csrf_token %}
                 <button type="submit" class="btn btn-success" onclick="addSpinner(this);">Download profile</button>
             </form>
@@ -39,8 +39,8 @@
     <br />
     <div class="row">
         <div class="col-6">
-            <p>Analyzed images count: {{ analyzed_count }}</p>
-            <form method="post" action="{% url 'analyze_profile' profile_name %}" novalidate>
+            <p>Analyzed images count from uploads: {{ analyzed_count }}</p>
+            <form method="post" action="#" novalidate>
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger" onclick="addSpinner(this);">Analyze profile</button>
             </form>
@@ -51,7 +51,7 @@
     <hr />
     <div class="row">
         <div class="col-6">
-            <a href="{% url 'recommendations' profile_name %}"><button class="btn btn-primary">Continue to uploading images</button></a>
+            <a href="#}"><button class="btn btn-primary">Get recommendations</button></a>
         </div>
     </div>
 </div>
