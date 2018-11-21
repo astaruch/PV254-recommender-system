@@ -1,4 +1,6 @@
 # PV254-recommender-system
+[![Heroku](http://heroku-badge.herokuapp.com/?app=pv254-recommender-system&svg=1)](https://pv254-recommender-system.herokuapp.com/)
+
 
 ## Cloud Vision API dependencies
 - env variable `GOOGLE_APPLICATION_CREDENTIALS` needs to be set to the path where service account key is stored
@@ -17,4 +19,11 @@
 4. Annotate IG profile images `python annotate_images.py --input profiles/jpancik/`.
 5. Rank images `python rank_images.py --library profiles/jpancik/ --input resources/random-images/`.
 6. Open HTML with results in `resources/random-images/recommendations.html`.
-7. $$$ Profit $$$.
+7. \$$$ Profit $$$.
+
+
+## Django frontend
+1. Perform all steps in Setup
+2. Run server:
+    * dev `python frontend/manage.py runserver` is listening on `127.0.0.1:8000`
+    * prod `gunicorn --pythonpath frontend frontend.wsgi`
