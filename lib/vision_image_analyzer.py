@@ -63,5 +63,5 @@ def annotate_images(path_to_directory, callback_is_analyzed, callback_store_labe
 
                 label_annotations = analyze_img(content)
 
-                print("Received label annotationns for %s." % image_filename)
+                print("Received label annotations for %s." % image_filename)
                 callback_store_labels(filename, label_annotations)
