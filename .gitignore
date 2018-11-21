@@ -110,4 +110,4 @@ venv/
 profiles/
 *.sqlite3
 resources/random-images
-frontend/frontend/staticfiles
+frontend/staticfiles
