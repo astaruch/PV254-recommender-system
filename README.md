@@ -19,7 +19,7 @@
 3. Download Instagram profile `python scripts/download_ig_profile.py --profile jpancik`.
 4. Annotate random images `python scripts/annotate_images.py --input resources/random-images/`.
 5. Annotate IG profile images `python scripts/annotate_images.py --input profiles/jpancik/`.
-6. Rank images `python scripts/rank_images.py --library profiles/jpancik/ --input resources/random-images/`.
+6. Rank images `python scripts/rank_images.py --library profiles/jpancik/ --input random-images/`.
 7. Open HTML with results in `resources/random-images/recommendations.html`.
 8. \$$$ Profit $$$.
 
