@@ -1,10 +1,9 @@
 import argparse
-import io
 import os
 import sqlite3
 
 from lib import database_sql_commands
-from lib.vision_analyze_img import analyze_img
+from lib import vision_image_analyzer
 
 
 class AnnotateImages(object):
@@ -24,32 +23,18 @@ class AnnotateImages(object):
         db_conn = sqlite3.connect(self.options.output)
         db_conn.execute(database_sql_commands.CREATE_TABLE_IMAGE_LABEL)
 
-        directory_string = os.path.join(
-            os.path.dirname(__file__),
-            self.options.input)
+        directory_string = os.path.join(self.options.input)
 
-        directory = os.fsencode(directory_string)
+        def callback(filename, label_annotations):
+            for label_annotation in label_annotations:
+                db_conn.execute(
+                    'INSERT INTO image_label (`path_prefix`, `filename`, `label`, `score`) VALUES (?, ?, ?, ?)',
+                    (directory_string + '/' if not directory_string.endswith('/') else directory_string,
+                     filename,
+                     label_annotation.description,
+                     label_annotation.score))
 
-        for file in os.listdir(directory):
-            filename = os.fsdecode(file)
-
-            if filename.endswith(".jpg"):
-                image_filename = os.path.join(directory_string, filename)
-                print('Annotating image: %s.' % image_filename)
-
-                with io.open(image_filename, 'rb') as image_file:
-                    content = image_file.read()
-
-                    label_annotations = analyze_img(content)
-
-                    print("Received label annotationns for %s." % image_filename)
-                    for label_annotation in label_annotations:
-                        db_conn.execute(
-                            'INSERT INTO image_label (`path_prefix`, `filename`, `label`, `score`) VALUES (?, ?, ?, ?)',
-                            (directory_string + '/' if not directory_string.endswith('/') else directory_string,
-                             filename,
-                             label_annotation.description,
-                             label_annotation.score))
+        vision_image_analyzer.annotate_images(directory_string, callback)
 
         db_conn.commit()
         db_conn.close()

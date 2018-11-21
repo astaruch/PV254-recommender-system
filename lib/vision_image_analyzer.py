@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import io
 import os
 import sys
 
@@ -12,7 +13,7 @@ if not "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
     Using default value <PATH_TO_FILE_DIR>/.secrets/pv254-recommender-systems-1329fedf3c97.json
   """, file=sys.stderr)
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
-        os.path.dirname(os.path.realpath(sys.argv[0])),
+        os.environ['PYTHONPATH'],
         '.secrets',
         'pv254-recommender-systems-1329fedf3c97.json'
     )
@@ -31,3 +32,22 @@ def analyze_img(image_content):
     response = client.annotate_image({'image': image, 'features': request_features})
 
     return response.label_annotations
+
+
+def annotate_images(path_to_directory, callback):
+    directory = os.fsencode(path_to_directory)
+
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+
+        if filename.endswith(".jpg"):
+            image_filename = os.path.join(path_to_directory, filename)
+            print('Annotating image: %s.' % image_filename)
+
+            with io.open(image_filename, 'rb') as image_file:
+                content = image_file.read()
+
+                label_annotations = analyze_img(content)
+
+                print("Received label annotationns for %s." % image_filename)
+                callback(filename, label_annotations)

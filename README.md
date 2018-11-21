@@ -14,13 +14,14 @@
 5. Leaving virtual environment: `deactivate`.
 
 ## Example usage
-1. Download random images `python download_random_photos.py`.
-2. Download Instagram profile `python download_ig_profile.py --profile jpancik`.
-3. Annotate random images `python annotate_images.py --input resources/random-images/`.
-4. Annotate IG profile images `python annotate_images.py --input profiles/jpancik/`.
-5. Rank images `python rank_images.py --library profiles/jpancik/ --input resources/random-images/`.
-6. Open HTML with results in `resources/random-images/recommendations.html`.
-7. \$$$ Profit $$$.
+1. Export PYTHONPATH to root dir ``export PYTHONPATH=`pwd` ``.
+2. Download random images `python scripts/download_random_photos.py`.
+3. Download Instagram profile `python scripts/download_ig_profile.py --profile jpancik`.
+4. Annotate random images `python scripts/annotate_images.py --input resources/random-images/`.
+5. Annotate IG profile images `python scripts/annotate_images.py --input profiles/jpancik/`.
+6. Rank images `python scripts/rank_images.py --library profiles/jpancik/ --input resources/random-images/`.
+7. Open HTML with results in `resources/random-images/recommendations.html`.
+8. \$$$ Profit $$$.
 
 
 ## Django frontend
