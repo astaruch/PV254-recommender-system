@@ -27,14 +27,20 @@ class DownloadRandomImages(object):
 
         min_id = 0
         max_id = 1084
+        image_ids = [x for x in range(min_id, max_id)]
+        # Some ids are invalid.
+        image_ids.remove(895)
 
-        for index, image_id in enumerate(random.sample(range(min_id, max_id), self.options.count)):
-            image_filename = '%s/%s.jpg' % (self.options.folder, image_id)
+        for index, image_id in enumerate(random.sample(image_ids, self.options.count)):
+            image_filename = os.path.join(
+                self.options.folder,
+                '%s.jpg' % (image_id))
+            # image_filename = '%s/%s.jpg' % (self.options.folder, image_id)
             if not os.path.exists(image_filename):
+                print('%s: Downloaded image with id %s.' % ((index + 1), image_id))
                 urllib.request.urlretrieve(
                     'https://picsum.photos/%s/%s?image=%s' % (self.options.width, self.options.height, image_id),
                     image_filename)
-                print('%s: Downloaded image.' % (index + 1))
             else:
                 print('%s: Image with id %s already exists.' % ((index + 1), image_id))
 
