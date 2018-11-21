@@ -20,6 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     # path('', views.index, name='index'),
     path('', include('landingpage.urls')),
-    path('ig_profile', include('landingpage.urls')),
     path('admin/', admin.site.urls),
 ]
