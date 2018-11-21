@@ -15,7 +15,7 @@ if "GOOGLE_API_JSON_FILE" in os.environ:
     with open('access.json', 'w') as json_output_file:
         json.dump(json_data, json_output_file)
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
-            os.path.dirname(os.path.realpath(sys.argv[0])),
+            os.environ['PYTHONPATH'],
             'access.json'
         )
 elif not "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
