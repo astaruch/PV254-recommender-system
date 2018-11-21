@@ -28,4 +28,4 @@
 1. Perform all steps in Setup
 2. Run server:
     * dev `python manage.py runserver` is listening on `127.0.0.1:8000`
-    * prod `gunicorn --pythonpath frontend frontend.wsgi`
+    * prod `gunicorn frontend.wsgi`
