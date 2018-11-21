@@ -3,12 +3,22 @@ from __future__ import print_function
 import io
 import os
 import sys
+import json
 
 # Imports the Google Cloud client library
 from google.cloud import vision
 from google.cloud.vision import types
 
-if not "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+if "GOOGLE_API_JSON_FILE" in os.environ:
+    print("Info: Creating 'access.json' file for Cloud Vision API.")
+    json_data = json.loads(os.environ["GOOGLE_API_JSON_FILE"])
+    with open('access.json', 'w') as json_output_file:
+        json.dump(json_data, json_output_file)
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
+            os.path.dirname(os.path.realpath(sys.argv[0])),
+            'access.json'
+        )
+elif not "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
     print("""Warning: You need to set "GOOGLE_APPLICATION_CREDENTIALS" in order to use Cloud Vision API.
     Using default value <PATH_TO_FILE_DIR>/.secrets/pv254-recommender-systems-1329fedf3c97.json
   """, file=sys.stderr)
