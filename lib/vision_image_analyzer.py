@@ -20,12 +20,12 @@ if "GOOGLE_API_JSON_FILE" in os.environ:
         )
 elif not "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
     print("""Warning: You need to set "GOOGLE_APPLICATION_CREDENTIALS" in order to use Cloud Vision API.
-    Using default value <PATH_TO_FILE_DIR>/.secrets/pv254-recommender-systems-1329fedf3c97.json
+    Using default value <PATH_TO_FILE_DIR>/.secrets/access.json
   """, file=sys.stderr)
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
         os.environ['PYTHONPATH'],
         '.secrets',
-        'pv254-recommender-systems-1329fedf3c97.json'
+        'access.json'
     )
 
 

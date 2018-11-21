@@ -4,7 +4,7 @@
 
 ## Cloud Vision API dependencies
 - env variable `GOOGLE_APPLICATION_CREDENTIALS` needs to be set to the path where service account key is stored
-- it is sufficient to place `pv254-recommender-systems-1329fedf3c97.json` inside `.secrets` folder
+- it is sufficient to place `access.json` inside `.secrets` folder
 
 ## Setup
 1. Install virtualenv via `pip install virtualenv` (alternatively `pip3 install virtualenv`).
