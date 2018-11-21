@@ -109,7 +109,8 @@ venv/
 .DS_Store
 profiles/
 *.sqlite3
-resources/random-images
+random-images/
 frontend/staticfiles
 resources/
 .vscode/
+candidates/

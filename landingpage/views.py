@@ -1,10 +1,12 @@
+from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
-from .forms import InstagramProfileName
+from .forms import InstagramProfileName, MultipleFilesUpload
 from django.http import JsonResponse
 import sys
 from lib import instagram_downloader, vision_image_analyzer, database_sql_commands
 import os
 from django.db import connection
+from django.core.files.storage import default_storage
 
 
 # Create your views here.
@@ -90,15 +92,56 @@ def recommendations(request, profile_name):
         images_count = 0
 
     analyzed_count = 0
-    # with connection.cursor() as cursor:
-    #     cursor.execute(database_sql_commands.CREATE_TABLE_IMAGE_LABEL)
-    #
-    #     analyzed_count = cursor.execute(
-    #         'SELECT COUNT(*) FROM (SELECT DISTINCT path_prefix, filename FROM image_label WHERE path_prefix = %s)',
-    #         (directory_string,)).fetchone()[0]
+    with connection.cursor() as cursor:
+        cursor.execute(database_sql_commands.CREATE_TABLE_IMAGE_LABEL)
+
+        analyzed_count = cursor.execute(
+            'SELECT COUNT(*) FROM (SELECT DISTINCT path_prefix, filename FROM image_label WHERE path_prefix = %s)',
+            (directory_string,)).fetchone()[0]
+
+    form = MultipleFilesUpload()
 
     return render(request, 'recommendations.html', context={
         'profile_name': profile_name,
+        'form': form,
         'images_count': images_count,
         'analyzed_count': analyzed_count
     })
+
+
+def upload_candidates(request, profile_name):
+    if request.method == 'POST':
+        directory_string = os.path.join('candidates/%s/' % profile_name)
+
+        form = MultipleFilesUpload(request.POST, request.FILES)
+        if form.is_valid():
+            for file in request.FILES.getlist('file_field'):
+                default_storage.save('%s%s' % (directory_string, file.name), ContentFile(file.read()))
+
+    return redirect('recommendations', profile_name=profile_name)
+
+
+def analyze_candidates(request, profile_name):
+    if request.method == 'POST':
+        with connection.cursor() as cursor:
+            directory_string = os.path.join('candidates/%s/' % profile_name)
+
+            cursor.execute(database_sql_commands.CREATE_TABLE_IMAGE_LABEL)
+
+            def callback_is_analyzed(filename):
+                return cursor.execute(
+                    'SELECT COUNT(*) FROM image_label WHERE path_prefix = %s AND filename = %s',
+                    (directory_string, filename)).fetchone()[0] > 0
+
+            def callback_store_labels(filename, label_annotations):
+                for label_annotation in label_annotations:
+                    cursor.execute(
+                        'INSERT INTO image_label (`path_prefix`, `filename`, `label`, `score`) VALUES (%s, %s, %s, %s)',
+                        (directory_string,
+                         filename,
+                         label_annotation.description,
+                         label_annotation.score))
+
+            vision_image_analyzer.annotate_images(directory_string, callback_is_analyzed, callback_store_labels)
+
+    return redirect('recommendations', profile_name=profile_name)

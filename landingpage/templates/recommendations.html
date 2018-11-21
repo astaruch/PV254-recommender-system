@@ -29,9 +29,11 @@
     <div class="row">
         <div class="col-6">
             <p>Currently uploaded images count: {{ images_count }}</p>
-            <form method="post" action="#" novalidate>
+            {% load crispy_forms_tags %}
+            <form method="post" action="{% url 'upload_candidates' profile_name %}" novalidate enctype="multipart/form-data">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-success" onclick="addSpinner(this);">Download profile</button>
+                {{ form | crispy }}
+                <button type="submit" class="btn btn-success" onclick="addSpinner(this);">Upload images</button>
             </form>
         </div>
     </div>
@@ -40,7 +42,7 @@
     <div class="row">
         <div class="col-6">
             <p>Analyzed images count from uploads: {{ analyzed_count }}</p>
-            <form method="post" action="#" novalidate>
+            <form method="post" action="{% url 'analyze_candidates' profile_name %}" novalidate>
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger" onclick="addSpinner(this);">Analyze profile</button>
             </form>
@@ -51,7 +53,7 @@
     <hr />
     <div class="row">
         <div class="col-6">
-            <a href="#}"><button class="btn btn-primary">Get recommendations</button></a>
+            <a href="#"><button class="btn btn-primary">Get recommendations</button></a>
         </div>
     </div>
 </div>

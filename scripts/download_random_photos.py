@@ -18,7 +18,7 @@ class DownloadRandomImages(object):
                             help='Width of images.')
         parser.add_argument('--height', type=int, default=600, required=False,
                             help='Height of images.')
-        parser.add_argument('--folder', type=str, default='resources/random-images', required=False,
+        parser.add_argument('--folder', type=str, default='random-images', required=False,
                             help='Folder where images will be stored.')
         return parser.parse_args()
 
