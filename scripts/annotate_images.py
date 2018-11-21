@@ -16,7 +16,7 @@ class AnnotateImages(object):
         parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         parser.add_argument('--input', type=str, default=None, required=True,
                             help='Folder where images are stored.')
-        parser.add_argument('--output', type=str, default='database.sqlite3', required=False,
+        parser.add_argument('--output', type=str, default='db.sqlite3', required=False,
                             help='Database sqlite3 file where output should be stored.')
         return parser.parse_args()
 

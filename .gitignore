@@ -112,3 +112,4 @@ profiles/
 resources/random-images
 frontend/staticfiles
 resources/
+.vscode/
