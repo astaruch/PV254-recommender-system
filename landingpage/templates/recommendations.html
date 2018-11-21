@@ -44,7 +44,7 @@
             <p>Analyzed images count from uploads: {{ analyzed_count }}</p>
             <form method="post" action="{% url 'analyze_candidates' profile_name %}" novalidate>
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger" onclick="addSpinner(this);">Analyze profile</button>
+                <button type="submit" class="btn btn-danger" onclick="addSpinner(this);">Analyze uploaded images</button>
             </form>
         </div>
     </div>
