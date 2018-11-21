@@ -1,7 +1,8 @@
 import argparse
-import urllib.request
 import os
 import random
+import urllib.request
+from urllib.error import HTTPError
 
 
 class DownloadRandomImages(object):
@@ -28,8 +29,6 @@ class DownloadRandomImages(object):
         min_id = 0
         max_id = 1084
         image_ids = [x for x in range(min_id, max_id)]
-        # Some ids are invalid.
-        image_ids.remove(895)
 
         for index, image_id in enumerate(random.sample(image_ids, self.options.count)):
             image_filename = os.path.join(
@@ -37,10 +36,14 @@ class DownloadRandomImages(object):
                 '%s.jpg' % (image_id))
             # image_filename = '%s/%s.jpg' % (self.options.folder, image_id)
             if not os.path.exists(image_filename):
-                print('%s: Downloaded image with id %s.' % ((index + 1), image_id))
-                urllib.request.urlretrieve(
-                    'https://picsum.photos/%s/%s?image=%s' % (self.options.width, self.options.height, image_id),
-                    image_filename)
+                print('%s: Downloading image with id %s: ' % ((index + 1), image_id), end='')
+                try:
+                    urllib.request.urlretrieve(
+                        'https://picsum.photos/%s/%s?image=%s' % (self.options.width, self.options.height, image_id),
+                        image_filename)
+                    print('Ok.')
+                except HTTPError as e:
+                    print('Failed to download image with error %s.' % (e.msg))
             else:
                 print('%s: Image with id %s already exists.' % ((index + 1), image_id))
 
