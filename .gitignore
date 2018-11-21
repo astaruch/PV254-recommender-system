@@ -111,3 +111,4 @@ profiles/
 *.sqlite3
 resources/random-images
 frontend/staticfiles
+resources/
