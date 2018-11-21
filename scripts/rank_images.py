@@ -2,7 +2,7 @@ import argparse
 import os
 import sqlite3
 from collections import defaultdict, OrderedDict
-
+from math import ceil
 
 class RankImages(object):
     def __init__(self):
@@ -21,6 +21,10 @@ class RankImages(object):
                             help='Count of recommendations.')
         parser.add_argument('--dbfile', type=str, default='db.sqlite3', required=False,
                             help='Database sqlite3 file where output should be stored.')
+        parser.add_argument('--positive', type=float, default=1.033, required=False,
+                            help='Coefficient to fine-tune the scoring for matching labels.')
+        parser.add_argument('--negative', type=float, default=1.44, required=False,
+                            help='Coefficient to fine-tune the scoring for non-matching labels.')
         return parser.parse_args()
 
     def run(self):
@@ -62,33 +66,35 @@ class RankImages(object):
                 else:
                     candidate_evaluation[filename]['absent_labels_count'] += 1
 
-        matching_coefficient = 1.03
-        absent_coefficient = 0.87
+        matching_coefficient = self.options.positive
+        absent_coefficient = self.options.negative
 
         for filename, evaluation in candidate_evaluation.items():
             candidate_evaluation[filename]['score'] = 0.0
             candidate_evaluation[filename]['most_prominent'] = []
-            for label, values in evaluation['matching_labels'].items():
+            for label, category_values in evaluation['matching_labels'].items():
                 immediate_value = 0.0
-                immediate_value += values['own_score'] / (values['library_score'] / values['library_count'])
-                immediate_value *= pow(matching_coefficient, values['library_count'])
+                immediate_value += category_values['own_score'] / (category_values['library_score'] / category_values['library_count'])
+                immediate_value *= pow(matching_coefficient, category_values['library_count'])
                 candidate_evaluation[filename]['score'] += immediate_value
                 if len(candidate_evaluation[filename]['most_prominent']) < 3:
                     candidate_evaluation[filename]['most_prominent'].append(label)
             candidate_evaluation[filename]['score'] -= absent_coefficient * evaluation['absent_labels_count']
 
+        ordered_recommendations = OrderedDict(sorted(candidate_evaluation.items(), key=lambda x: x[1]['score'], reverse=True))
 
-        # Prepare best candidates as tuples (filename, score, list of reasons).
-        # TODO: 1) order candidate_evaluation by 'score' in descending order
-        #       2) select first n (n = self.options.count) best recommendations
-        #       3) build winners list (use 'Matches in X labels.', 'Doesn't match only in Y labels.', 'Matches very strongly in labels 'most_prominent'')
-        # ordered_recommendations = OrderedDict(sorted())
-        # winners = []
-        #
-        # for index, item in enumerate(ordered_recommendations):
-        #     if index >= self.options.count:
-        #         break
-        #     winners.append(item.key, item.v)
+        winners = []
+        max_score = -float('inf')
+        for index, (filename, category_values) in enumerate(ordered_recommendations.items()):
+            if index < self.options.count:
+                if category_values['score'] > max_score:
+                    max_score = category_values['score']
+                reasons = []
+                reasons.append('Matches the target profile in {} labels.'.format(len(category_values['matching_labels'])))
+                reasons.append('Labels matching the most are: {}.'.format(', '.join(category_values['most_prominent'])))
+                reasons.append('Differs from the target profile only in {} labels.'.format(category_values['absent_labels_count']))
+                score = ceil(category_values['score'] / max_score * 100)
+                winners.append((filename, '{}%'.format(score), reasons))
 
 
         output_filename_string = os.path.join(
@@ -100,7 +106,7 @@ class RankImages(object):
             output_file.write('<head>\n<body>\n</head>\n')
 
             count = 0
-            for (filename, score, reasons) in sorted(winners, key=lambda k: -k[1]):
+            for (filename, score, reasons) in winners:
                 if count >= self.options.count:
                     break
                 count += 1
