@@ -1,6 +1,7 @@
 import argparse
 import os
 import sqlite3
+from lib import image_ranker
 
 
 class RankImages(object):
@@ -16,10 +17,14 @@ class RankImages(object):
                             help='Path to annotated image candidates.')
         parser.add_argument('--output', type=str, default='recommendations.html', required=False,
                             help='Output file path.')
-        parser.add_argument('--count', type=int, default=15, required=False,
+        parser.add_argument('--count', type=int, default=7, required=False,
                             help='Count of recommendations.')
         parser.add_argument('--dbfile', type=str, default='db.sqlite3', required=False,
                             help='Database sqlite3 file where output should be stored.')
+        parser.add_argument('--positive', type=float, default=1.033, required=False,
+                            help='Coefficient to fine-tune the scoring for matching labels.')
+        parser.add_argument('--negative', type=float, default=1.44, required=False,
+                            help='Coefficient to fine-tune the scoring for non-matching labels.')
         return parser.parse_args()
 
     def run(self):
@@ -35,14 +40,10 @@ class RankImages(object):
 
         db_conn.close()
 
-        # Do magic here.
+        matching_coefficient = self.options.positive
+        absent_coefficient = self.options.negative
 
-        # Prepare best candidates as tuples (filename, score, list of reasons).
-        winners = [
-            (candidate_data[20][0], 20, ['this matches with that', 'cool pic']),
-            (candidate_data[60][0], 50, ['green is greener', 'i like this']),
-            (candidate_data[100][0], 10, ['matches with label x and y']),
-        ]
+        winners = image_ranker.rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient)
 
         output_filename_string = os.path.join(
             self.options.input,
