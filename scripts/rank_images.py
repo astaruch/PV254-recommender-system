@@ -13,7 +13,7 @@ class RankImages(object):
         parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         parser.add_argument('--library', type=str, default=None, required=True,
                             help='Path to library with annotated images.')
-        parser.add_argument('--input', type=str, default=None, required=True,
+        parser.add_argument('--candidates', type=str, default=None, required=True,
                             help='Path to annotated image candidates.')
         parser.add_argument('--output', type=str, default='recommendations.html', required=False,
                             help='Output file path.')
@@ -33,7 +33,7 @@ class RankImages(object):
         library_data = db_conn.execute(
             'SELECT filename, label, score FROM image_label WHERE path_prefix LIKE ?', ('{}%'.format(self.options.library),)).fetchall()
         candidate_data = db_conn.execute(
-            'SELECT filename, label, score FROM image_label WHERE path_prefix LIKE ?', ('{}%'.format(self.options.input),)).fetchall()
+            'SELECT filename, label, score FROM image_label WHERE path_prefix LIKE ?', ('{}%'.format(self.options.candidates),)).fetchall()
 
         print('Retrieved %s labels for library data.' % len(library_data))
         print('Retrieved %s labels for candidate data.' % len(candidate_data))
@@ -46,7 +46,7 @@ class RankImages(object):
         winners = image_ranker.rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient)
 
         output_filename_string = os.path.join(
-            self.options.input,
+            self.options.candidates,
             self.options.output)
 
         print('Generating output file: %s.' % output_filename_string)

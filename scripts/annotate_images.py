@@ -40,6 +40,8 @@ class AnnotateImages(object):
                      label_annotation.description,
                      label_annotation.score))
 
+            db_conn.commit()
+
         vision_image_analyzer.annotate_images(directory_string, callback_is_analyzed, callback_store_labels)
 
         db_conn.commit()
