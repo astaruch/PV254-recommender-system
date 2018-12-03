@@ -18,7 +18,7 @@ class RankImages(object):
                             help='Output file path.')
         parser.add_argument('--count', type=int, default=15, required=False,
                             help='Count of recommendations.')
-        parser.add_argument('--dbfile', type=str, default='database.sqlite3', required=False,
+        parser.add_argument('--dbfile', type=str, default='db.sqlite3', required=False,
                             help='Database sqlite3 file where output should be stored.')
         return parser.parse_args()
 
@@ -45,7 +45,6 @@ class RankImages(object):
         ]
 
         output_filename_string = os.path.join(
-            os.path.dirname(__file__),
             self.options.input,
             self.options.output)
 
