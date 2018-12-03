@@ -19,7 +19,7 @@
 3. Download Instagram profile `python scripts/download_ig_profile.py --profile jpancik`.
 4. Annotate random images `python scripts/annotate_images.py --input resources/random-images/`.
 5. Annotate IG profile images `python scripts/annotate_images.py --input profiles/jpancik/`.
-6. Rank images `python scripts/rank_images.py --library profiles/jpancik/ --input resources/random-images/`.
+6. Rank images `python scripts/rank_images.py --library profiles/jpancik/ --input random-images/`.
 7. Open HTML with results in `resources/random-images/recommendations.html`.
 8. \$$$ Profit $$$.
 
@@ -28,4 +28,4 @@
 1. Perform all steps in Setup
 2. Run server:
     * dev `python manage.py runserver` is listening on `127.0.0.1:8000`
-    * prod `gunicorn --pythonpath frontend frontend.wsgi`
+    * prod `gunicorn frontend.wsgi`
