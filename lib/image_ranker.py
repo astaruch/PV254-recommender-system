@@ -1,5 +1,31 @@
 from collections import defaultdict, OrderedDict
+from operator import itemgetter
 from math import ceil
+
+def rank_images_naive(library_data, candidate_data):
+    tags_dict = {}
+    for _, label, _ in library_data:
+        if label not in tags_dict:
+            tags_dict[label] = 1
+        else:
+            tags_dict[label] += 1
+
+    candidates = {}
+    for filename, label, _ in candidate_data:
+        if label in tags_dict:
+            if filename in candidates:
+                candidates[filename] += tags_dict[label]
+            else:
+                candidates[filename] = tags_dict[label]
+    candidates_sorted = OrderedDict(sorted(candidates.items(),
+                                           key=itemgetter(1),
+                                           reverse=True))
+    winners = []
+    for filename, score in candidates_sorted.items():
+        reasons = []
+        reasons.append('')
+        winners.append((filename, score, reasons))
+    return winners
 
 
 def rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient):

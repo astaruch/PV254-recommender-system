@@ -15,16 +15,27 @@ class RankImages(object):
                             help='Path to library with annotated images.')
         parser.add_argument('--input', type=str, default=None, required=True,
                             help='Path to annotated image candidates.')
-        parser.add_argument('--output', type=str, default='recommendations.html', required=False,
+        parser.add_argument('--output', type=str,
+                            default='recommendations.html', required=False,
                             help='Output file path.')
         parser.add_argument('--count', type=int, default=7, required=False,
                             help='Count of recommendations.')
-        parser.add_argument('--dbfile', type=str, default='db.sqlite3', required=False,
-                            help='Database sqlite3 file where output should be stored.')
-        parser.add_argument('--positive', type=float, default=1.033, required=False,
-                            help='Coefficient to fine-tune the scoring for matching labels.')
-        parser.add_argument('--negative', type=float, default=1.44, required=False,
-                            help='Coefficient to fine-tune the scoring for non-matching labels.')
+        parser.add_argument('--dbfile', type=str, default='db.sqlite3',
+                            required=False,
+                            help='Database sqlite3 file where output should be\
+                            stored.')
+        parser.add_argument('--positive', type=float, default=1.033,
+                            required=False,
+                            help='Coefficient to fine-tune the scoring for \
+                            matching labels.')
+        parser.add_argument('--negative', type=float, default=1.44,
+                            required=False,
+                            help='Coefficient to fine-tune the scoring for \
+                            non-matching labels.')
+        parser.add_argument('--algorithm', type=str,  default=None,
+                            required=True,
+                            help='Choose the ranking algorithm.',
+                            choices=['mroz', 'naive'])
         return parser.parse_args()
 
     def run(self):
@@ -42,8 +53,16 @@ class RankImages(object):
 
         matching_coefficient = self.options.positive
         absent_coefficient = self.options.negative
+        ranking_algorithm = self.options.algorithm
 
-        winners = image_ranker.rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient)
+        if ranking_algorithm == 'mroz':
+            winners = image_ranker.rank_images_mroz(library_data,
+                candidate_data, matching_coefficient, absent_coefficient)
+        elif ranking_algorithm == 'naive':
+            winners = image_ranker.rank_images_naive(library_data,
+                candidate_data)
+        else:
+            raise("error: unexpected algorithm")
 
         output_filename_string = os.path.join(
             self.options.input,
