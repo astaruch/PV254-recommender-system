@@ -10,4 +10,6 @@ urlpatterns = [
     path('recommendations/<str:profile_name>', views.recommendations, name='recommendations'),
     path('recommendations/<str:profile_name>/upload', views.upload_candidates, name='upload_candidates'),
     path('recommendations/<str:profile_name>/analyze', views.analyze_candidates, name='analyze_candidates'),
+    path('recommendations/<str:profile_name>/delete', views.delete_candidates, name='delete_candidates'),
+    path('recommendations/<str:profile_name>/rank', views.rank_candidates, name='rank_candidates'),
 ]

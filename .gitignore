@@ -87,7 +87,7 @@ env/
 venv/
 ENV/
 env.bak/
-venv.bak/
+venv.bak/pi
 
 # Spyder project settings
 .spyderproject
@@ -114,3 +114,5 @@ frontend/staticfiles
 resources/
 .vscode/
 candidates/
+
+lib/lexvec_model/lexvec_model.bin

@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from .forms import InstagramProfileName, MultipleFilesUpload
 from django.http import JsonResponse
 import sys
-from lib import instagram_downloader, vision_image_analyzer, database_sql_commands
+from lib import instagram_downloader, vision_image_analyzer, database_sql_commands, image_ranker
 import os
 from django.db import connection
 from django.core.files.storage import default_storage
@@ -84,10 +84,15 @@ def analyze_profile(request, profile_name):
 
 
 def recommendations(request, profile_name):
-    directory_string = os.path.join('candidates/%s/' % profile_name)
+    directory_string = os.path.join('frontend/static/candidates/%s/' % profile_name)
     directory = os.fsencode(directory_string)
     try:
-        images_count = len(os.listdir(directory))
+        images_count = 0
+        for file in os.listdir(directory):
+            filename = os.fsdecode(file)
+
+            if filename.endswith(".jpg"):
+                images_count += 1
     except FileNotFoundError:
         images_count = 0
 
@@ -111,7 +116,7 @@ def recommendations(request, profile_name):
 
 def upload_candidates(request, profile_name):
     if request.method == 'POST':
-        directory_string = os.path.join('candidates/%s/' % profile_name)
+        directory_string = os.path.join('frontend/static/candidates/%s/' % profile_name)
 
         form = MultipleFilesUpload(request.POST, request.FILES)
         if form.is_valid():
@@ -124,7 +129,7 @@ def upload_candidates(request, profile_name):
 def analyze_candidates(request, profile_name):
     if request.method == 'POST':
         with connection.cursor() as cursor:
-            directory_string = os.path.join('candidates/%s/' % profile_name)
+            directory_string = os.path.join('frontend/static/candidates/%s/' % profile_name)
 
             cursor.execute(database_sql_commands.CREATE_TABLE_IMAGE_LABEL)
 
@@ -145,3 +150,50 @@ def analyze_candidates(request, profile_name):
             vision_image_analyzer.annotate_images(directory_string, callback_is_analyzed, callback_store_labels)
 
     return redirect('recommendations', profile_name=profile_name)
+
+
+def delete_candidates(request, profile_name):
+    if request.method == 'POST':
+        directory_string = os.path.join('frontend/static/candidates/%s/' % profile_name)
+
+        with connection.cursor() as cursor:
+            cursor.execute(database_sql_commands.CREATE_TABLE_IMAGE_LABEL)
+
+            cursor.execute(
+                'DELETE FROM image_label WHERE id IN (SELECT id FROM image_label WHERE path_prefix LIKE %s)',
+                ('{}%'.format(directory_string),)
+            )
+
+        for file in os.listdir(directory_string):
+            filename = os.fsdecode(file)
+            os.remove(os.path.join(directory_string, filename))
+
+    return redirect('recommendations', profile_name=profile_name)
+
+
+def rank_candidates(request, profile_name):
+    candidates_directory_string = os.path.join('frontend/static/candidates/%s/' % profile_name)
+    library_directory_string = os.path.join('profiles/%s/' % profile_name)
+
+    with connection.cursor() as cursor:
+        library_data = cursor.execute(
+            'SELECT filename, label, score FROM image_label WHERE path_prefix LIKE %s',
+            ('{}%'.format(library_directory_string),)).fetchall()
+        candidate_data = cursor.execute(
+            'SELECT filename, label, score FROM image_label WHERE path_prefix LIKE %s',
+            ('{}%'.format(candidates_directory_string),)).fetchall()
+
+    print('Retrieved %s labels for library data.' % len(library_data))
+    print('Retrieved %s labels for candidate data.' % len(candidate_data))
+
+    matching_coefficient = 1.033
+    absent_coefficient = 1.44
+
+    winners = image_ranker.rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient)
+
+    winners = [(url.replace('frontend/', '/'), score, reasons) for url, score, reasons in winners]
+
+    return render(request, 'ranked.html', context={
+        'profile_name': profile_name,
+        'winners': sorted(winners, key=lambda k: -k[1])
+    })

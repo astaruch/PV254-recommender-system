@@ -1,6 +1,6 @@
 from collections import defaultdict, OrderedDict
-from math import ceil
-
+from lib.lexvec_model import lexvec_model
+from lib import galajdator_utils
 
 def rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient):
     library_labels = defaultdict(lambda: {'total_score': 0.0, 'count': 0})
@@ -59,3 +59,47 @@ def rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_
         winners.append((filename, score, reasons))
 
     return winners
+
+def rank_images_galajdator(library_data, candidate_data, pick_top_k_reasons = 5):
+    model = lexvec_model.Model('./lib/lexvec_model/lexvec_model.bin')
+
+    train_library_data_with_vector_rep = galajdator_utils.add_vector_rep(model, library_data)
+    candidate_data_with_vector_rep = galajdator_utils.add_vector_rep(model, candidate_data)
+
+    scores_candidate_data = defaultdict(lambda: {
+        'sum': 0.0,
+        'label_contributions': defaultdict(lambda: 0.0),
+    })
+
+    profile_labels = defaultdict(lambda: {
+        'count': 0
+    })
+
+    for row in train_library_data_with_vector_rep:
+        filename, label, score, vector_rep = row
+        profile_labels[label]['count'] += 1
+        profile_labels[label]['vector_rep'] = vector_rep
+
+
+    for row in candidate_data_with_vector_rep:
+        filename, label, score, label_vector_rep = row
+
+        label_contribution = galajdator_utils.get_score_for_label(profile_labels, label_vector_rep)
+        scores_candidate_data[filename]['sum'] += label_contribution
+        scores_candidate_data[filename]['label_contributions'][label] = label_contribution
+
+
+    results = []
+    for filename, candidate_score in scores_candidate_data.items():
+        reasons = []
+        label_contributions_sorted = OrderedDict(
+            sorted(candidate_score['label_contributions'].items(), key=lambda x: x[1], reverse=True))
+
+        for label, label_contribution in label_contributions_sorted.items():
+            reasons += ['Detected label "%s" had similarity score with profile: %f.' % (label, label_contribution)]
+        results += [(filename, candidate_score['sum'], reasons[:pick_top_k_reasons])]
+
+    # sort by score (second element in tuple)
+    results = sorted(results, key=lambda tuple: -tuple[1])
+
+    return results
