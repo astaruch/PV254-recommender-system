@@ -35,7 +35,7 @@ class RankImages(object):
         parser.add_argument('--algorithm', type=str,  default=None,
                             required=True,
                             help='Choose the ranking algorithm.',
-                            choices=['mroz', 'naive'])
+                            choices=['mroz', 'naive', 'random'])
         return parser.parse_args()
 
     def run(self):
@@ -61,6 +61,8 @@ class RankImages(object):
         elif ranking_algorithm == 'naive':
             winners = image_ranker.rank_images_naive(library_data,
                 candidate_data)
+        elif ranking_algorithm == 'random':
+            winners = image_ranker.rank_images_random(candidate_data)
         else:
             raise("error: unexpected algorithm")
 

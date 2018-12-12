@@ -1,6 +1,7 @@
 from collections import defaultdict, OrderedDict
 from operator import itemgetter
 from math import ceil
+from random import shuffle
 
 def rank_images_naive(library_data, candidate_data):
     tags_dict = {}
@@ -27,6 +28,15 @@ def rank_images_naive(library_data, candidate_data):
         winners.append((filename, score, reasons))
     return winners
 
+
+def rank_images_random(candidate_data):
+    random_values = [i for i in range(len(candidate_data))]
+    shuffle(random_values)
+    winners = []
+    for index, el_idx in enumerate(random_values):
+        winner = candidate_data[el_idx]
+        winners.append((winner[0], len(candidate_data) - index, ['Shuffled']))
+    return winners
 
 def rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient):
     library_labels = defaultdict(lambda: {'total_score': 0.0, 'count': 0})
