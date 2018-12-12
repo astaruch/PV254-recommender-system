@@ -15,18 +15,27 @@ class RankImages(object):
                             help='Path to library with annotated images.')
         parser.add_argument('--candidates', type=str, default=None, required=True,
                             help='Path to annotated image candidates.')
-        parser.add_argument('--output', type=str, default='recommendations.html', required=False,
+        parser.add_argument('--output', type=str,
+                            default='recommendations.html', required=False,
                             help='Output file path.')
-        parser.add_argument('--algorithm', type=str, default='mroz', required=False,
-                            help='Ranker algorithm to use.')
         parser.add_argument('--count', type=int, default=7, required=False,
                             help='Count of recommendations.')
-        parser.add_argument('--dbfile', type=str, default='db.sqlite3', required=False,
-                            help='Database sqlite3 file where output should be stored.')
-        parser.add_argument('--positive', type=float, default=1.033, required=False,
-                            help='Coefficient to fine-tune the scoring for matching labels.')
-        parser.add_argument('--negative', type=float, default=1.44, required=False,
-                            help='Coefficient to fine-tune the scoring for non-matching labels.')
+        parser.add_argument('--dbfile', type=str, default='db.sqlite3',
+                            required=False,
+                            help='Database sqlite3 file where output should be\
+                            stored.')
+        parser.add_argument('--positive', type=float, default=1.033,
+                            required=False,
+                            help='Coefficient to fine-tune the scoring for \
+                            matching labels.')
+        parser.add_argument('--negative', type=float, default=1.44,
+                            required=False,
+                            help='Coefficient to fine-tune the scoring for \
+                            non-matching labels.')
+        parser.add_argument('--algorithm', type=str,  default=None,
+                            required=True,
+                            help='Choose the ranking algorithm.',
+                            choices=['mroz', 'naive', 'random', 'galajdator'])
         return parser.parse_args()
 
     def run(self):
@@ -44,11 +53,20 @@ class RankImages(object):
 
         matching_coefficient = self.options.positive
         absent_coefficient = self.options.negative
+        ranking_algorithm = self.options.algorithm
 
-        if self.options.algorithm == "mroz":
-            winners = image_ranker.rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient)
-        elif self.options.algorithm == "galajdator":
+        if ranking_algorithm == 'mroz':
+            winners = image_ranker.rank_images_mroz(library_data,
+                candidate_data, matching_coefficient, absent_coefficient)
+        elif ranking_algorithm == 'naive':
+            winners = image_ranker.rank_images_naive(library_data,
+                candidate_data)
+        elif ranking_algorithm == 'random':
+            winners = image_ranker.rank_images_random(candidate_data)
+        elif ranking_algorithm == "galajdator":
             winners = image_ranker.rank_images_galajdator(library_data, candidate_data, 5)
+        else:
+            raise("error: unexpected algorithm")
 
         output_filename_string = os.path.join(
             self.options.candidates,
@@ -66,10 +84,12 @@ class RankImages(object):
 
                 output_file.write('<img src="%s"/>\n' % filename)
                 output_file.write('<p>Score: %s<br />\n' % score)
-                output_file.write('Reasons:</p><ul>\n')
-                for reason in reasons:
-                    output_file.write('<li>%s</li>\n' % reason)
-                output_file.write('</ul><br /><br /><br />\n')
+                if reasons:
+                    output_file.write('Reasons:</p><ul>\n')
+                    for reason in reasons:
+                        output_file.write('<li>%s</li>\n' % reason)
+                    output_file.write('</ul>')
+                output_file.write('<br /><br /><br />\n')
 
             output_file.write('</body>\n')
 
