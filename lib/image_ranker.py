@@ -23,9 +23,7 @@ def rank_images_naive(library_data, candidate_data):
                                            reverse=True))
     winners = []
     for filename, score in candidates_sorted.items():
-        reasons = []
-        reasons.append('')
-        winners.append((filename, score, reasons))
+        winners.append((filename, score, []))
     return winners
 
 
@@ -35,7 +33,7 @@ def rank_images_random(candidate_data):
     winners = []
     for index, el_idx in enumerate(random_values):
         winner = candidate_data[el_idx]
-        winners.append((winner[0], len(candidate_data) - index, ['Shuffled']))
+        winners.append((winner[0], len(candidate_data) - index, []))
     return winners
 
 def rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient):

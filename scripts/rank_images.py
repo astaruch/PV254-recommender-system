@@ -82,10 +82,12 @@ class RankImages(object):
 
                 output_file.write('<img src="%s"/>\n' % filename)
                 output_file.write('<p>Score: %s<br />\n' % score)
-                output_file.write('Reasons:</p><ul>\n')
-                for reason in reasons:
-                    output_file.write('<li>%s</li>\n' % reason)
-                output_file.write('</ul><br /><br /><br />\n')
+                if reasons:
+                    output_file.write('Reasons:</p><ul>\n')
+                    for reason in reasons:
+                        output_file.write('<li>%s</li>\n' % reason)
+                    output_file.write('</ul>')
+                output_file.write('<br /><br /><br />\n')
 
             output_file.write('</body>\n')
 
