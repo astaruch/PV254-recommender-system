@@ -3,7 +3,7 @@ import os
 import random
 import sqlite3
 from lib import image_ranker
-
+from lib.lexvec_model import lexvec_model
 
 class TestRankingAlgorithm(object):
     def __init__(self):
@@ -36,10 +36,11 @@ class TestRankingAlgorithm(object):
         candidate_data = db_conn.execute(
             'SELECT filename, label, score FROM image_label WHERE path_prefix LIKE ?', ('{}%'.format(self.options.candidates),)).fetchall()
 
-        print('Retrieved %s labels for library data.' % len(library_data))
-        print('Retrieved %s labels for candidate data.' % len(candidate_data))
-
+        # print('Retrieved %s labels for library data.' % len(library_data))
+        # print('Retrieved %s labels for candidate data.' % len(candidate_data))
+        print("score_sum,")
         db_conn.close()
+        # model = lexvec_model.Model('./lib/lexvec_model/lexvec_model.bin')
 
         matching_coefficient = self.options.positive
         absent_coefficient = self.options.negative
@@ -62,7 +63,7 @@ class TestRankingAlgorithm(object):
                 print('Mix coefficient is higher than 1.0!')
                 continue
 
-            print('Mixing %s images into %s candidate images.' % (candidates_count_to_mix, len(iteration_candidate_data)))
+            # print('Mixing %s images into %s candidate images.' % (candidates_count_to_mix, len(iteration_candidate_data)))
 
             mixed_candidates_from_library = []
             for i in range(candidates_count_to_mix):
@@ -73,40 +74,46 @@ class TestRankingAlgorithm(object):
                 iteration_candidate_data[key] = value
 
 
-            winners = image_ranker.rank_images_mroz(
-                [(k, x[0], x[1]) for k, v in iteration_library_data.items() for x in v],
-                [(k, x[0], x[1]) for k, v in iteration_candidate_data.items() for x in v],
-                matching_coefficient,
-                absent_coefficient)
+            # winners = image_ranker.rank_images_mroz(
+            #     [(k, x[0], x[1]) for k, v in iteration_library_data.items() for x in v],
+            #     [(k, x[0], x[1]) for k, v in iteration_candidate_data.items() for x in v],
+            #     matching_coefficient,
+            #     absent_coefficient)
+
+            # winners = image_ranker.rank_images_galajdator(
+            #     [(k, x[0], x[1]) for k, v in iteration_library_data.items() for x in v],
+            #     [(k, x[0], x[1]) for k, v in iteration_candidate_data.items() for x in v],
+            #     5, model)
+            # winners = image_ranker.rank_images_naive(
+            #     [(k, x[0], x[1]) for k, v in iteration_library_data.items() for x in v],
+            #     [(k, x[0], x[1]) for k, v in iteration_candidate_data.items() for x in v])
+            winners = image_ranker.rank_images_random([(k, x[0], x[1]) for k, v in iteration_candidate_data.items() for x in v])
+
+
+            total_score_sum = 0
+            min_value = 0
+            for filename, score, reasons in winners:
+                if score < min_value:
+                    min_value = score
+
+            shifted_winners = []
+            for filename, score, reasons in winners:
+                shifted_winners += [(filename, score - min_value, reasons)]
+
+            for filename, score, reasons in shifted_winners:
+                total_score_sum += score
+
+            normalized_validation_winners = []
+            for filename, score, reasons in shifted_winners:
+                if filename in mixed_candidates_from_library:
+                    normalized_validation_winners += [(filename, score / total_score_sum, reasons)]
+
 
             score_sum = 0
-            for filename, score, reasons in winners:
-                if filename in mixed_candidates_from_library:
-                    score_sum += score
-            print('Score sum for iteration %s is %s.' % (iteration_number, score_sum))
+            for filename, score, reasons in normalized_validation_winners:
+                score_sum += score
 
-            output_filename_string = os.path.join('recommendations-%s.html' % iteration_number)
-
-            print('Generating output file: %s.' % output_filename_string)
-            with open(output_filename_string, 'w') as output_file:
-                output_file.write('<head>\n<body>\n</head>\n')
-
-                for (filename, score, reasons) in sorted(winners, key=lambda k: -k[1]):
-
-                    if filename in mixed_candidates_from_library or filename in iteration_library_data:
-                        output_file.write('<img src="%s%s"/>\n' % (self.options.library, filename))
-                    else:
-                        output_file.write('<img src="%s%s"/>\n' % (self.options.candidates, filename))
-                    output_file.write('<p>Score: %s<br />\n' % score)
-                    output_file.write('Reasons:</p><ul>\n')
-                    for reason in reasons:
-                        output_file.write('<li>%s</li>\n' % reason)
-                    output_file.write('</ul><br /><br /><br />\n')
-
-                output_file.write('</body>\n')
-            print('Iteration %s finished.' % iteration_number)
-
-        print('Done.')
+            print("%f," % score_sum)
 
 
 if __name__ == '__main__':
