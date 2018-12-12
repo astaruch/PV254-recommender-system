@@ -32,3 +32,7 @@
 
 ## Export profiles to CSV
 1. python scripts/export_label_count_from_profiles_to_csv.py --dbfile <PATH_TO_DB_FILE> --output <PATH_TO_EXPORT_CSV> --min_score <OPTIONAL_MIN_SCORE>
+
+## How to use "Galajdator"
+1. Download model from  `https://www.dropbox.com/s/buix0deqlks4312/lexvec.commoncrawl.ngramsubwords.300d.W.pos.bin.gz?dl=1`
+2. Unzip it  to `/lib/lexvec_model/lexvec_model.bin`

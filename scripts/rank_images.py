@@ -17,6 +17,8 @@ class RankImages(object):
                             help='Path to annotated image candidates.')
         parser.add_argument('--output', type=str, default='recommendations.html', required=False,
                             help='Output file path.')
+        parser.add_argument('--algorithm', type=str, default='mroz', required=False,
+                            help='Ranker algorithm to use.')
         parser.add_argument('--count', type=int, default=7, required=False,
                             help='Count of recommendations.')
         parser.add_argument('--dbfile', type=str, default='db.sqlite3', required=False,
@@ -43,7 +45,10 @@ class RankImages(object):
         matching_coefficient = self.options.positive
         absent_coefficient = self.options.negative
 
-        winners = image_ranker.rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient)
+        if self.options.algorithm == "mroz":
+            winners = image_ranker.rank_images_mroz(library_data, candidate_data, matching_coefficient, absent_coefficient)
+        elif self.options.algorithm == "galajdator":
+            winners = image_ranker.rank_images_galajdator(library_data, candidate_data, 5)
 
         output_filename_string = os.path.join(
             self.options.input,
