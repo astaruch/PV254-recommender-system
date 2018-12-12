@@ -20,9 +20,11 @@
             <div class="col-6">
                 <img src="{{ url }}" />
                 <p>Image score is {{ score}}.</p>
+                <p>
                 {% for reason in reasons %}
-                    <p>{{ reason }}</p>
+                    {{ reason }} <br/>
                 {% endfor %}
+                </p>
             </div>
         </div>
         <br />
