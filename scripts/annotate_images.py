@@ -17,7 +17,7 @@ class AnnotateImages(object):
                             help='Folder where images are stored.')
         parser.add_argument('--output', type=str, default='db.sqlite3', required=False,
                             help='Database sqlite3 file where output should be stored.')
-        return parser.parse_args()
+        return parser.parse_known_args()[0]
 
     def run(self):
         db_conn = sqlite3.connect(self.options.output)

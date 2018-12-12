@@ -29,23 +29,61 @@ elif not "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
     )
 
 
-def analyze_img(image_content):
+def analyze_images(images, max_results = 25):
+    MAX_BATCH_SIZE = 16
+
     # Instantiates a client
     client = vision.ImageAnnotatorClient()
 
-    image = types.Image(content=image_content)
-
-    # Performs label detection on the image file
     label_detection_feature = {
-        'type': vision.enums.Feature.Type.LABEL_DETECTION, 'max_results': 25}
-    request_features = [label_detection_feature]
-    response = client.annotate_image({'image': image, 'features': request_features})
+        'type': vision.enums.Feature.Type.LABEL_DETECTION,
+        'max_results': max_results
+    }
 
-    return response.label_annotations
+    accumulated_requests = []
+    prepared_batched_requests = []
+    for image_content in images:
+        image = types.Image(content=image_content)
+
+        # Performs label detection on the image file
+        request_features = [label_detection_feature]
+
+        accumulated_requests += [
+            {'image': image, 'features': request_features}
+        ]
+
+        if len(accumulated_requests) % MAX_BATCH_SIZE == 0:
+            prepared_batched_requests += [accumulated_requests]
+            accumulated_requests = []
+
+    # Can fit to the last batch if there are 0 batches prepared
+    #  or last batch contains free space equal to the length of "accumulated_requests"
+    at_least_one_batch_exists = len(prepared_batched_requests) > 0
+    if at_least_one_batch_exists:
+        can_fit_to_last_batch = len(prepared_batched_requests[-1]) + len(accumulated_requests) <= MAX_BATCH_SIZE
+    else:
+        can_fit_to_last_batch = True
+
+    if len(accumulated_requests) > 0 and at_least_one_batch_exists and can_fit_to_last_batch:
+        prepared_batched_requests[-1] += accumulated_requests
+    elif len(accumulated_requests) > 0:
+        prepared_batched_requests += [accumulated_requests]
+
+    batched_label_annotations = []
+    for prepared_batch_request in prepared_batched_requests:
+        batch_response = client.batch_annotate_images(requests=prepared_batch_request)
+
+        for response in batch_response.responses:
+            batched_label_annotations += [response.label_annotations]
+
+    return batched_label_annotations
 
 
 def annotate_images(path_to_directory, callback_is_analyzed, callback_store_labels):
     directory = os.fsencode(path_to_directory)
+
+    images_to_analyze = []
+    image_filenames_to_analyze = []
 
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
@@ -61,7 +99,13 @@ def annotate_images(path_to_directory, callback_is_analyzed, callback_store_labe
             with io.open(image_filename, 'rb') as image_file:
                 content = image_file.read()
 
-                label_annotations = analyze_img(content)
+                images_to_analyze += [content]
+                image_filenames_to_analyze += [image_filename]
 
-                print("Received label annotations for %s." % image_filename)
-                callback_store_labels(filename, label_annotations)
+
+    batched_label_annotations = analyze_images(images_to_analyze)
+
+    for image_idx, label_annotations in enumerate(batched_label_annotations):
+        filename = image_filenames_to_analyze[image_idx]
+        print("Received label annotations for %s." % filename)
+        callback_store_labels(filename, label_annotations)

@@ -29,3 +29,6 @@
 2. Run server:
     * dev `python manage.py runserver` is listening on `127.0.0.1:8000`
     * prod `gunicorn frontend.wsgi`
+
+## Export profiles to CSV
+1. `python scripts/export_label_count_from_profiles_to_csv.py --dbfile <PATH_TO_DB_FILE> --output <PATH_TO_EXPORT_CSV> --min_score <OPTIONAL_MIN_SCORE>`
