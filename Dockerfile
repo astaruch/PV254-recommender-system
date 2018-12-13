@@ -14,5 +14,5 @@ ENV LANG C.UTF-8
 
 EXPOSE 8000
 COPY . /src
-
+ENV PYTHONPATH /src
 CMD ["gunicorn", "--timeout", "300", "frontend.wsgi", "--log-file", "-", "--bind", "0.0.0.0"]
