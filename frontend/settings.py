@@ -29,6 +29,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'pv254-recommender-system.herokuapp.com',
+    'instagram.staruch.sk',
 ]
 
 
