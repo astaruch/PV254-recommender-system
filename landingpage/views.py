@@ -1,6 +1,6 @@
 from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect
-from .forms import InstagramProfileName, MultipleFilesUpload
+from .forms import InstagramProfileName, MultipleFilesUpload, RankingAlgorithmName
 from django.http import JsonResponse
 import sys
 from lib import instagram_downloader, vision_image_analyzer, database_sql_commands, image_ranker
@@ -105,12 +105,14 @@ def recommendations(request, profile_name):
             (directory_string,)).fetchone()[0]
 
     form = MultipleFilesUpload()
+    algorithm_name_form = RankingAlgorithmName()
 
     return render(request, 'recommendations.html', context={
         'profile_name': profile_name,
         'form': form,
         'images_count': images_count,
-        'analyzed_count': analyzed_count
+        'analyzed_count': analyzed_count,
+        'algorithm_name': algorithm_name_form,
     })
 
 
@@ -171,7 +173,7 @@ def delete_candidates(request, profile_name):
     return redirect('recommendations', profile_name=profile_name)
 
 
-def rank_candidates(request, profile_name):
+def rank_candidates(request, profile_name, algorithm_name):
     candidates_directory_string = os.path.join('frontend/static/candidates/%s/' % profile_name)
     library_directory_string = os.path.join('profiles/%s/' % profile_name)
 

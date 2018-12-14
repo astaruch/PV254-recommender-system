@@ -11,5 +11,6 @@ urlpatterns = [
     path('recommendations/<str:profile_name>/upload', views.upload_candidates, name='upload_candidates'),
     path('recommendations/<str:profile_name>/analyze', views.analyze_candidates, name='analyze_candidates'),
     path('recommendations/<str:profile_name>/delete', views.delete_candidates, name='delete_candidates'),
-    path('recommendations/<str:profile_name>/rank', views.rank_candidates, name='rank_candidates'),
+    path('recommendations/<str:profile_name>/rank/<str:algorithm_name>', views.rank_candidates, name='rank_candidates'),
+
 ]

@@ -64,7 +64,16 @@
     <hr />
     <div class="row">
         <div class="col-6">
-            <a href="{% url 'rank_candidates' profile_name %}"><button class="btn btn-primary">Get recommendations</button></a>
+            ADD DROPDOWN
+            <a href="{% url 'rank_candidates' profile_name  %}"><button class="btn btn-primary">Get recommendations</button></a>
+            {% load crispy_forms_tags %}
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {{ form | crispy }}
+                <button type="submit" class="btn btn-success">
+                    Analyze profile
+                </button>
+            </form>
         </div>
     </div>
 </div>
