@@ -1,6 +1,7 @@
 # PV254-recommender-system
 [![Heroku](http://heroku-badge.herokuapp.com/?app=pv254-recommender-system&svg=1)](https://pv254-recommender-system.herokuapp.com/)
 
+> We had some problems with a image uploading to Heroku so during evaluation of a project it is hosted [here](https://instagram.staruch.sk/).
 
 ## Cloud Vision API dependencies
 - env variable `GOOGLE_APPLICATION_CREDENTIALS` needs to be set to the path where service account key is stored
@@ -28,7 +29,7 @@
 1. Perform all steps in Setup
 2. Run server:
     * dev `python manage.py runserver` is listening on `127.0.0.1:8000`
-    * prod `gunicorn frontend.wsgi`
+    * prod `gunicorn --timeout 300 frontend.wsgi`
 
 ## Export profiles to CSV
 1. `python scripts/export_label_count_from_profiles_to_csv.py --dbfile <PATH_TO_DB_FILE> --output <PATH_TO_EXPORT_CSV> --min_score <OPTIONAL_MIN_SCORE>`
